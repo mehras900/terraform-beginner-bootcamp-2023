@@ -109,3 +109,30 @@ Few points to keep in mind for gitpod task lifecyle:
 
 For more information about gitpod task lifecylce, please checkout 
 [task lifecycle](https://www.gitpod.io/docs/configure/workspaces/tasks#restart-a-workspace)
+
+## 3. ENV Vars in Gitpod
+
+To check environment variables use:
+```
+$ env
+
+##You can fetch any specific env variable using grep##
+$ env | grep -i <var_name>
+```
+
+#### 3.1 Ways of setting user-specific environment variables
+ - Using the command line: `gp env`
+   
+   The gp CLI prints and modifies the persistent environment variables associated with your user for the current repository.
+
+   To set the persistent environment variable foo to the value bar use:
+
+   ```
+   gp env foo=bar
+   ```
+   This does not modify your current terminal session, but rather **persists this variable for the next workspace on this repository**. gp can only interact with the persistent environment variables for this repository, not the environment variables of your terminal.
+
+
+- Using the account settings
+
+  You can also configure and view the persistent environment variables in your account settings
