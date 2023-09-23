@@ -136,3 +136,88 @@ $ env | grep -i <var_name>
 - Using the account settings
 
   You can also configure and view the persistent environment variables in your account settings
+
+
+## 3. Refactoring AWS CLI
+
+#### 3.1 New bash script([aws_cli_install.sh](/bin/aws_cli_install.sh)) that installs AWS CLI
+
+You can refer [aws document](https://docs.aws.amazon.com/cli/v1/userguide/install-linux.html) to get the commands required to install the AWS CLI in linux.
+
+Create a new bash script that installs AWS CLI. Copy the following contents from `gitpod.yml` and place it in [aws_cli_install.sh](/bin/aws_cli_install.sh)
+
+Bash script([aws_cli_install.sh](/bin/aws_cli_install.sh)) content:
+```
+#!/usr/bin/env bash
+
+cd /workspace
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip -qo awscliv2.zip
+sudo ./aws/install --update
+
+cd $PROJECT_ROOT
+
+```
+
+In the `unzip -qo awscliv2.zip` command, `'q'` stand for performing operations quietly (-qq = even quieter), and `'o'` stands for overwriting the existing files without prompting.
+
+or, probably you could delete the exiting cli and it's contents using below in the bash script. It will not ask for prompts if delete it before re-intsalling the same cli.
+
+```
+#!/usr/bin/env bash
+
+cd /workspace
+rm -f awscliv2.zip.   <-- Added this
+rm -rf aws            <-- Added this
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip.   <-- Changed this
+sudo ./aws/install    <-- Changed this
+
+cd $PROJECT_ROOT
+```
+
+#### 3.2 Get Access Keys
+
+You need to have an AWS account. Please set it up if you don't have one using [AWS Setup Link](https://aws.amazon.com/free/?trk=58b3b422-9e3d-4d31-a50d-c6f8b1a5161a&sc_channel=ps&ef_id=CjwKCAjwmbqoBhAgEiwACIjzEICLt2B9k7hEt32xHUyzaZcqNMtCtN_w-0V03WpEP21cXmKFl-gWzBoCZc8QAvD_BwE:G:s&s_kwcid=AL!4422!3!507852355859!p!!g!!amazon%20web%20services!12580566202!118888769039&all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc&awsf.Free%20Tier%20Types=*all&awsf.Free%20Tier%20Categories=*all)
+
+Once you have your account, you need to create new user using `AWS IAM` service.
+
+- Login to AWS console
+- Go to IAM service
+- Create new user with any name, I've used `tfbootcomp` and add it in a group(I used group name as `Admin`), and finally grant `AdministratorAccess` permissions to the group. Note that this user doesn't need to have `console access` for now.
+- Once user is created, click on `user` --> `security credentials` --> create new `access keys`.` 
+
+**WARNING:** 
+DON'T EVER EVER EVER EVER EVER PROVIDE THESE KEYS TO ANYONE OR STORE IT IN GITHUB.
+
+#### 3.3 Use gitpod's env variables 
+
+These keys can be stored as env variables in the terminal or workspace.
+
+You have to run following commands to export the keys as the env variables:
+```
+export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+export AWS_SECRET_ACCESS_KEY=1234567xxxxxxxxx
+export AWS_DEFAULT_REGION=ca-central-1
+```
+
+Note that above are not the actual keys. So, don't even think about using it :wink: 
+
+#### 3.4 Verification
+
+In order to verify whether that AWS CLI has properly configured to interact with AWS, use following command. The following `get-caller-identity` command displays information about the IAM identity used to authenticate the request. The caller is an IAM user.
+
+```
+aws sts get-caller-identity
+```
+```
+Sample Output:
+
+{
+    "UserId": "AIDASAMPLEUSERID",
+    "Account": "123456789012",
+    "Arn": "arn:aws:iam::123456789012:user/tfbootcamp"
+}
+```
+
