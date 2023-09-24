@@ -221,3 +221,81 @@ Sample Output:
 }
 ```
 
+
+## 4. Terraform Basics
+
+### 4.1 Terraform Registry
+The [Terraform Registry](https://registry.terraform.io/) is a collection of publicly available Terraform modules and providers. It allows users to share and reuse configurations.
+
+#### 4.1.1 Terrform Providers
+A [provider](https://registry.terraform.io/browse/providers) in Terraform is a plugin that enables interaction with an API. The providers are specified in the Terraform configuration code. They tell Terraform which services it needs to interact with.
+
+Example provider:
+```
+terraform {
+  required_providers {
+    random = {
+      source = "hashicorp/random"
+      version = "3.5.1"
+    }
+  }
+}
+
+provider "random" {
+  # Configuration options
+}
+```
+
+#### 4.1.1 Terrform Modules
+A [Terraform module](https://registry.terraform.io/browse/modules) is a collection of standard configuration files in a dedicated directory and set of resources for reuse. It way of making large code modular, shareble and portable
+
+Example module:
+```
+module "custom_module" {
+    source = "./custom_module"
+    # ... other config ...
+}
+```
+
+### 4.2 Terraform commands
+- **terraform -help**: Get a list of available commands for execution with descriptions.
+
+- **terraform init**: In order to prepare the working directory for use with Terraform, the terraform init command performs `Backend Initialization`, `Child Module Installation`, and `Plugin Installation`. Generates a ``.terraform/`` directory containing provider plugins.
+
+- **terraform plan**: It will generate an execution plan, showing you what actions will be taken without actually performing the planned actions. No new files/directories by default.
+
+- **terraform apply**: Applies the proposed changes to the infrastructure. It updates or creates `terraform.tfstate` and may create `terraform.tfstate.backup`.
+
+- **terraform console**: Provides an interactive shell to evaluate Terraform expressions.
+
+- **terraform validate**: Checks the configuration for syntax and basic errors. It does not access any remote state or services. `terraform init` should be run before this command
+
+- **terraform fmt**: Reformats configuration in HCL language standard.
+
+- **terraform output**: Displays the values of outputs currently held in the state file.
+
+Above are just few examples of terraform commands. For full comprehensive list, you can refer [More Terraform Commands](https://spacelift.io/blog/terraform-commands-cheat-sheet).
+
+### 4.3 Terraform state and lock files
+#### 4.3.1 Terraform State file
+- **terraform.tfstate**: Terraform uses this file to track the state of the infrastructure it manages. The state file contains information about the resources that Terraform has created and has all the associated attributes to the infra like usernames, passwords or any other sensitice info.
+
+  The `terraform.tfstate` file is created automatically by Terraform when you run `terraform apply` for the first time
+
+- **terraform.tfstate.backup**: The `terraform.tfstate.backup` file is a backup of the `terraform.tfstate` file. Terraform automatically creates a backup of the state file before making any changes to the state file. This ensures that you can recover from a corrupted or lost state file.
+
+  The terraform.tfstate.backup file is stored in the same directory as the terraform.tfstate file
+
+  Here are some reasons why you might need to restore your Terraform state from a backup:
+
+  - If the terraform.tfstate file is corrupted or lost.
+  - If you accidentally delete a resource from Terraform management.
+  - If you need to revert to a previous version of your infrastructure.
+
+**Important Note**: It is never advisable to commit .tfstate or .tfstate.backuo files to github or VCS.
+
+#### 4.3.2 Terraform lock file
+
+- **.terraform.lock.hcl**: It's a lock file that pins the versions of providers and modules, ensuring a consistent environment across operations and team members.
+
+This **should be commited** in your VCS or source control repository
