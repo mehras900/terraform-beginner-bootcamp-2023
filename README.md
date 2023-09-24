@@ -389,3 +389,52 @@ resource "random_string" "bucket_name" {
   upper = false  # Add this
 }
 ```
+
+## 6 Terraform Cloud backend
+You need to have Terraform Cloud Account already setup for this. 
+
+### 6.1 Issues with terraform cloud login in gitpod workspace
+
+When we tried to access Terraform Cloud using the `terraform login` command in Gitpod VSCODE, it didn't automatically open the web browser to retrieve the token from 'app.terraform.io'.
+
+As a workaround, if the browser doesn't open automatically, you can manually open the following URL to obtain the token. Afterward, create a file at `/home/gitpod/.terraform.d/credentials.tfrc.json`` with the following content, making sure to replace 'ADD YOUR TOKEN HERE' with the actual token you copied from the provided link: https://app.terraform.io/app/settings/tokens?source=terraform-login
+
+```json
+{
+  "credentials": {
+    "app.terraform.io": {
+      "token": "ADD YOUR TOKEN HERE"
+    }
+  }
+}
+
+```
+
+### 6.2 Migrate local state to terraform cloud
+
+- To use Terraform Cloud as a backend for your configuration, you must include a cloud block in your configuration.
+
+ ```
+terraform {
+  cloud {
+    organization = "ORGANIZATION-NAME"
+    workspaces {
+      name = "learn-terraform-cloud-migrate"
+    }
+  }
+ ```
+
+- **Authenticate with Terraform Cloud**:
+
+  In order to authenticate to Terraform Cloud run `terraform login` and type **yes** at the confirmation prompt.
+
+- Follow workaround provided in previous step [6.1](#61-issues-with-terraform-cloud-login-in-gitpod-workspace)
+
+- **Migrate the state file**:
+
+  Reinitialize your configuration to update the backend and migrate your existing state to terraform cloud. Type `yes` to confirm the migration.
+
+  ```
+  terraform init
+  ```
+ 
