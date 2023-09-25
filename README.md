@@ -438,3 +438,6 @@ terraform {
   terraform init
   ```
  
+## 7 Bash script to automate steps in section [6.1](#61-issues-with-terraform-cloud-login-in-gitpod-workspace)
+
+Bash script([generate_tfrc_credentials.sh](./bin/generate_tfrc_credentials.sh)) has been created to automate workaround steps that we performed because of the issue faced while running `terraform login` command.
