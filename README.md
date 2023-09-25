@@ -440,4 +440,8 @@ terraform {
  
 ## 7 Bash script to automate steps in section [6.1](#61-issues-with-terraform-cloud-login-in-gitpod-workspace)
 
-Bash script([generate_tfrc_credentials.sh](./bin/generate_tfrc_credentials.sh)) has been created to automate workaround steps that we performed because of the issue faced while running `terraform login` command.
+Bash script([generate_tfrc_credentials.sh](./bin/generate_tfrc_credentials.sh)) has been created to automate workaround steps that we performed manually because of the issue faced while running `terraform login` command.
+
+## 8 Create a Bash Script for setting the `tf` alias
+
+We have create a bash script [set_terraform_alias.sh](./bin/set_terraform_alias.sh) and added in gitpod.yml file. This script will check if the alias for `terraform` command already exist, if not, it will add the alias in the `.bash_profile` file so that the alias persist across different terminals. 
