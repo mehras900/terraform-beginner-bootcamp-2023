@@ -1,19 +1,22 @@
-- [Table of Contents](#table-of-contents)
+# Terraform Beginner Bootcamp 2023 - Week 0
+
+### Table of contents(TOC)
+
 - [1. Semantic Versioning](#1-semantic-versioning)
-    + [1.1 How to delete tags locally and remotely](#11-how-to-delete-tags-locally-and-remotely)
-    + [1.2 How to have a graph view of branch](#12-how-to-have-a-graph-view-of-branch)
+  * [1.1 How to delete tags locally and remotely](#11-how-to-delete-tags-locally-and-remotely)
+  * [1.2 How to have a graph view of branch](#12-how-to-have-a-graph-view-of-branch)
 - [2. Refactoring Terraform CLI](#2-refactoring-terraform-cli)
-    + [2.1 Create new bash script that installs Terraform CLI](#21-create-new-bash-script-that-installs-terraform-cli)
-    + [2.2 Understanding Shebang](#22-understanding-shebang)
-    + [2.2 How to make bash script executable?](#22-how-to-make-bash-script-executable-)
-    + [2.3 Update the [gitpod.yml](./.gitpod.yml) to use bash script and use `before` gitpod lifecycle.](#23-update-the--gitpodyml---gitpodyml--to-use-bash-script-and-use--before--gitpod-lifecycle)
+  * [2.1 Create new bash script that installs Terraform CLI](#21-create-new-bash-script-that-installs-terraform-cli)
+  * [2.2 Understanding Shebang](#22-understanding-shebang)
+  * [2.3 How to make bash script executable?](#23-how-to-make-bash-script-executable)
+  * [2.4 Update the `gitpod.yml` to use bash script and use `before` gitpod lifecycle.](#24-update-the-gitpodyml-to-use-bash-script-and-use-before-gitpod-lifecycle)
 - [3. ENV Vars in Gitpod](#3-env-vars-in-gitpod)
-    + [3.1 Ways of setting user-specific environment variables](#31-ways-of-setting-user-specific-environment-variables)
+  * [3.1 Ways of setting user-specific environment variables](#31-ways-of-setting-user-specific-environment-variables)
 - [4. Refactoring AWS CLI](#4-refactoring-aws-cli)
-    + [3.1 New bash script([aws_cli_install.sh](/bin/aws_cli_install.sh)) that installs AWS CLI](#31-new-bash-script--aws-cli-installsh---bin-aws-cli-installsh---that-installs-aws-cli)
-    + [4.2 Get Access Keys](#42-get-access-keys)
-    + [4.3 Use gitpod's env variables](#43-use-gitpod-s-env-variables)
-    + [4.4 Verification](#44-verification)
+  * [4.1 New bash script `aws_cli_install.sh` that installs AWS CLI](#41-new-bash-scriptaws_cli_installsh-that-installs-aws-cli)
+  * [4.2 Get Access Keys](#42-get-access-keys)
+  * [4.3 Use gitpod's env variables](#43-use-gitpods-env-variables)
+  * [4.4 Verification](#44-verification)
 - [5. Terraform Basics](#5-terraform-basics)
   * [5.1 Terraform Registry](#51-terraform-registry)
     + [5.1.1 Terrform Providers](#511-terrform-providers)
@@ -26,15 +29,15 @@
   * [6.1 Install AWS S3 provider](#61-install-aws-s3-provider)
   * [6.2 Create S3 bucket with a random name](#62-create-s3-bucket-with-a-random-name)
 - [7 Terraform Cloud backend](#7-terraform-cloud-backend)
-  * [6.1 Issues with terraform cloud login in gitpod workspace](#61-issues-with-terraform-cloud-login-in-gitpod-workspace)
+  * [7.1 Issues with terraform cloud login in gitpod workspace](#71-issues-with-terraform-cloud-login-in-gitpod-workspace)
   * [7.2 Migrate local state to terraform cloud](#72-migrate-local-state-to-terraform-cloud)
-- [8 Bash script to automate steps in section [6.1](#61-issues-with-terraform-cloud-login-in-gitpod-workspace)](#8-bash-script-to-automate-steps-in-section--61---61-issues-with-terraform-cloud-login-in-gitpod-workspace-)
-- [9 Create a Bash Script for setting the `tf` alias](#9-create-a-bash-script-for-setting-the--tf--alias)
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+- [8 Bash script to automate steps in section - 6.1](#8-bash-script-to-automate-steps-in-section---61)
+- [9 Create a Bash Script for setting the `tf` alias](#9-create-a-bash-script-for-setting-the-tf-alias)
 
 
-# WEEK 0
+
+
+
 
 ## 1. Semantic Versioning
 
@@ -49,7 +52,7 @@ Here's what each component means:
 - **PATCH version**: This is incremented when you make backward compatible bug fixes or minor improvements that do not introduce new features.  For example, moving from version `1.2.3` to `1.2.4`
 
 
-#### 1.1 How to delete tags locally and remotely
+### 1.1 How to delete tags locally and remotely
 In order to delete a local Git tag, use the “git tag” command with the “-d” option.
 
 ```
@@ -65,13 +68,13 @@ $ git push --delete origin tagname
 Example: git push --delete origin 0.1.0
 ```
 
-#### 1.2 How to have a graph view of branch
+### 1.2 How to have a graph view of branch
 
 Sometimes you need see an icon for graph view. In order to have that please install `git log --graph` plugin.
 
 ## 2. Refactoring Terraform CLI
 
-#### 2.1 Create new bash script that installs Terraform CLI
+### 2.1 Create new bash script that installs Terraform CLI
 Following commands in `gitpod.yaml` were showing deprecated warnings and requires user input to perform full terraform cli installation 
 
 ```
@@ -88,7 +91,7 @@ sudo apt-get update && sudo apt-get install terraform
 We've created a new bash script that fixes the above issue of deprecated warnings and user input. It is placed under [terraform_cli_install.sh](./bin/terraform_cli_install.sh)
 
 
-#### 2.2 Understanding Shebang
+### 2.2 Understanding Shebang
 
 We've used `#!/usr/bin/env bash` as the bash interpreter in our script, but what is the difference between `#!/usr/bin/env bash` and `#!/bin/bash`
 
@@ -102,7 +105,7 @@ However, #!/bin/bash is more explicit and may be preferred in situations where y
 ```
 
 
-#### 2.2 How to make bash script executable?
+### 2.3 How to make bash script executable?
 
 In order to make bash script([terraform_install_cli.sh](./bin/terraform_cli_install.sh)) executable, you can use following command
 
@@ -126,7 +129,7 @@ x <-> execute  <-> 1
 Total:       4+2+1=7
 ```
 
-#### 2.3 Update the [gitpod.yml](./.gitpod.yml) to use bash script and use `before` gitpod lifecycle.
+### 2.4 Update the [gitpod.yml](./.gitpod.yml) to use bash script and use `before` gitpod lifecycle.
 
 We have added following block in `gitpod.yml`, where we replaced the set of individual commands with the bash script that installs terraform cli 
 
@@ -154,7 +157,7 @@ $ env
 $ env | grep -i <var_name>
 ```
 
-#### 3.1 Ways of setting user-specific environment variables
+### 3.1 Ways of setting user-specific environment variables
  - Using the command line: `gp env`
    
    The gp CLI prints and modifies the persistent environment variables associated with your user for the current repository.
@@ -174,7 +177,7 @@ $ env | grep -i <var_name>
 
 ## 4. Refactoring AWS CLI
 
-#### 3.1 New bash script([aws_cli_install.sh](/bin/aws_cli_install.sh)) that installs AWS CLI
+### 4.1 New bash script([aws_cli_install.sh](/bin/aws_cli_install.sh)) that installs AWS CLI
 
 You can refer [aws document](https://docs.aws.amazon.com/cli/v1/userguide/install-linux.html) to get the commands required to install the AWS CLI in linux.
 
@@ -211,7 +214,7 @@ sudo ./aws/install    <-- Changed this
 cd $PROJECT_ROOT
 ```
 
-#### 4.2 Get Access Keys
+### 4.2 Get Access Keys
 
 You need to have an AWS account. Please set it up if you don't have one using [AWS Setup Link](https://aws.amazon.com/free/?trk=58b3b422-9e3d-4d31-a50d-c6f8b1a5161a&sc_channel=ps&ef_id=CjwKCAjwmbqoBhAgEiwACIjzEICLt2B9k7hEt32xHUyzaZcqNMtCtN_w-0V03WpEP21cXmKFl-gWzBoCZc8QAvD_BwE:G:s&s_kwcid=AL!4422!3!507852355859!p!!g!!amazon%20web%20services!12580566202!118888769039&all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc&awsf.Free%20Tier%20Types=*all&awsf.Free%20Tier%20Categories=*all)
 
@@ -225,7 +228,7 @@ Once you have your account, you need to create new user using `AWS IAM` service.
 **WARNING:** 
 DON'T EVER EVER EVER EVER EVER PROVIDE THESE KEYS TO ANYONE OR STORE IT IN GITHUB.
 
-#### 4.3 Use gitpod's env variables 
+### 4.3 Use gitpod's env variables 
 
 These keys can be stored as env variables in the terminal or workspace.
 
@@ -238,7 +241,7 @@ export AWS_DEFAULT_REGION=ca-central-1
 
 Note that above are not the actual keys. So, don't even think about using it :wink: 
 
-#### 4.4 Verification
+### 4.4 Verification
 
 In order to verify whether that AWS CLI has properly configured to interact with AWS, use following command. The following `get-caller-identity` command displays information about the IAM identity used to authenticate the request. The caller is an IAM user.
 
@@ -427,7 +430,7 @@ resource "random_string" "bucket_name" {
 ## 7 Terraform Cloud backend
 You need to have Terraform Cloud Account already setup for this. 
 
-### 6.1 Issues with terraform cloud login in gitpod workspace
+### 7.1 Issues with terraform cloud login in gitpod workspace
 
 When we tried to access Terraform Cloud using the `terraform login` command in Gitpod VSCODE, it didn't automatically open the web browser to retrieve the token from 'app.terraform.io'.
 
@@ -472,7 +475,7 @@ terraform {
   terraform init
   ```
  
-## 8 Bash script to automate steps in section [6.1](#61-issues-with-terraform-cloud-login-in-gitpod-workspace)
+## [8 Bash script to automate steps in section - 6.1](#61-issues-with-terraform-cloud-login-in-gitpod-workspace)
 
 Bash script([generate_tfrc_credentials.sh](./bin/generate_tfrc_credentials.sh)) has been created to automate workaround steps that we performed manually because of the issue faced while running `terraform login` command.
 
