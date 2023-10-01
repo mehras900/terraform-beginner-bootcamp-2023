@@ -1,3 +1,5 @@
-output "random_bucket_name" {
-  value = aws_s3_bucket.website_bucket.bucket
+output "bucket_name" {
+  description = "This is our bucket for static website hosting"
+  value = module.terrahous_aws.bucket_name
 }
+

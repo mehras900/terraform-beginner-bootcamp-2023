@@ -152,3 +152,76 @@ Checkout he docs for [Random string import](https://registry.terraform.io/provid
 Any manual changes made to the infra managed by terraform are usually detected by terrafor plan.
 
 Educate teams on Terraform-first changes, restrict infrastructure modification access, utilize monitoring for change alerts, run frequent terraform plan for drift detection, and enforce standards using tools like Sentinel in Terraform Cloud/Enterprise.
+
+## 4. Terraform Modules
+
+### 4.1 Terraform Module Structure
+A Terraform module is a set of Terraform configuration files in a single directory. 
+
+Sample terraform module structure is shown below:
+
+```tf
+$ tree modules/terrahouse_aws
+.
+├── README.md
+├── main.tf
+├── variables.tf
+├── outputs.tf
+```
+
+### 4.2 Passing Input Variables 
+- Initially, you must declare the variables you intend to provide values for within the child module. This can be accomplished by creating a [variables.tf](/modules/terrahous_aws/variables.tf) file within the [child module's](/modules/terrahous_aws) directory. Here's an example:
+
+```tf
+  variable "user_uuid" {
+  type        = string
+  description = "The Terraform BootCamp UUID"
+
+  validation {
+    condition     = length(var.user_uuid) > 5
+    error_message = "User UUID provided is not VALID, please check!!!"
+  }
+}
+
+
+variable "bucket_name" {
+  description = "The name of the S3 bucket, should be all lowercase."
+  type        = string
+  validation {
+    condition     = !can(regex("[A-Z]", var.bucket_name))
+    error_message = "The bucket_name must not contain uppercase letters."
+  }
+}
+```
+
+- Next, you should use these variables within the child module wherever they are required. For example, if you're creating an AWS S3 bucket, you might implement it like this:
+
+  ```tf
+  resource "aws_s3_bucket" "website_bucket" {
+  bucket = var.bucket_name
+
+  tags = {
+    UserUUID = var.user_uuid
+    managedBy = "terraform"
+  }
+  }
+  ```
+
+- Lastly, when invoking the child module from the parent module, you have the ability to supply values to these variables. This is achieved in the following manner:
+
+  ```
+  module "terrahous_aws" {
+    source = "./modules/terrahous_aws"
+    user_uuid = var.user_uuid
+    bucket_name = var.bucket_name
+    } 
+  ```
+
+
+### 4.3 Modules Sources
+Modules can be sourced from a variety of locations. Some common sources are:
+
+- Local paths
+- GitHub
+- Terraform Registry
+- S3 buckets
