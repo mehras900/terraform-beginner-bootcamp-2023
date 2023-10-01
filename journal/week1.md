@@ -112,3 +112,43 @@ But, you may run into below error:
   ![Alt text](../public/assets/errors/init_error_while_migrating_state_from_tf_cloud_to_local.png)
 
   To fix this, delete `.terraform.lock.hcl` file and `.terraform` directory and run `terrform init` again.
+
+  ###### 2.5 Is whatever we did above in Migrating the state from cloud to local again the correct way? --> `TODO`
+
+  ## 3. Dealing with Configuration drift
+
+  ### 3.1 What happens when you lost your terraform state file
+When you lose your Terraform state file:
+
+  - It leads to **Loss of Mapping**. Terraform will have no knowledge of the resources it has managed. This disconnect means that Terraform can't manage, modify, or destroy the previously created resources based on your configurations.
+
+  - If you try to run terraform apply during this time, Terraform will likely attempt to create new instances of all resources defined in your configurations, leading to potential resource conflicts or duplications, which is not **BEARABLE** **in** **PRODUCTION**.
+
+  **Solution**:
+
+- **Terraform Import**: Use the terraform import command to reassociate each resource in your configuration with its real-world instance. This manual process can be tedious for large infrastructures.
+- **Backup Strategy**: Always back up your state files, especially if stored locally. For production workloads, consider using remote state storage solutions like Terraform Cloud, AWS S3, or other backends that allow versioning and backup capabilities.
+
+In this bootcamp, we purposly deleted the `terraform.tfstate` file and then tried to bring back previously existing stage by importing the resources.
+
+**Note**: `Some resources simply could not be imported back into state, like random_string. It will lead to recreation of existing resources which is not possible sometimes.
+
+We are removing random_string resources in this section as using might not be best use case for future sections.
+
+### 3.2 Fix missing resources with terraform import
+If certain resources are missing from the state file but exist in the real-world environment, you can use the terraform import command:
+
+```
+# Importing random string
+terraform import random_string.bucket_name kj6aabzpfzte3mk226o5tdjioko37if1
+
+# Import S3 bucket
+terraform import aws_s3_bucket.example kj6aabzpfzte3mk226o5tdjioko37if1
+```
+
+Checkout he docs for [Random string import](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string#import) and [S3 buckket import](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#import)
+
+### 3.3 Manual configuration
+Any manual changes made to the infra managed by terraform are usually detected by terrafor plan.
+
+Educate teams on Terraform-first changes, restrict infrastructure modification access, utilize monitoring for change alerts, run frequent terraform plan for drift detection, and enforce standards using tools like Sentinel in Terraform Cloud/Enterprise.
