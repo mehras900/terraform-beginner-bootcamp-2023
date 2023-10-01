@@ -2,7 +2,7 @@
 
 ## Architectural Diagram
 
-![Alt text](public/assets/architectural_diagram.png)
+![Alt text](public/assets/terraform-images/full_architectural_diagram.png)
 
 ## Weekly Journals
 - [Week 0 Journal](journal/week0.md)
