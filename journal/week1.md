@@ -20,7 +20,7 @@ Our root module structure is as follows:
 1. While running terraform plan, you might run into following error:
 
 
-    ![Alt text](../public/assets/errors/tf_plan_err_because_of_aws_creds_not_available_intf_cloud.png)
+    ![Alt text](../public/assets/errors-images/tf_plan_err_because_of_aws_creds_not_available_intf_cloud.png)
 
     Our terraform state is stored in Terraform Cloud, but it doesn't have AWS Access & Secret access keys stored as environment variables to interact with AWS API. 
 
@@ -311,3 +311,86 @@ resource "aws_s3_object" "error_html_object" {
 ```
 Other Terraform functions can be accessed at: https://developer.hashicorp.com/terraform/language/functions
 
+## 6. Terraform CloudFront Distribution
+
+[**Amazon CloudFront**](https://aws.amazon.com/cloudfront/?nc=sn&loc=1) is a [**content delivery network (CDN)**](https://aws.amazon.com/what-is/cdn/) provided by Amazon Web Services. By using a CDN, companies can accelerate delivery of files to users over the Internet while also reducing the load on their own infrastructure. 
+
+### 6.1 Terraform Locals
+[**Terraform Locals**](https://spacelift.io/blog/terraform-locals) are [named values](https://developer.hashicorp.com/terraform/tutorials/configuration-language/locals?utm_source=WEBSITE&utm_medium=WEB_IO&utm_offer=ARTICLE_PAGE&utm_content=DOCS) which can be assigned and used in your code. It mainly serves the purpose of reducing duplication within the Terraform code.
+
+Example:
+
+```tf
+locals {
+  s3_origin_id = "terrahouse-S3Origin"
+}
+```
+
+### 6.2 Terraform Data Sources
+[**Data sources**](https://developer.hashicorp.com/terraform/language/data-sources) allow Terraform to use information defined outside of Terraform, defined by another separate Terraform configuration, or modified by functions.
+
+Example:
+```tf
+## Use this data source to get the access to the effective Account ID, User ID, and ARN
+
+data "aws_caller_identity" "current" {}
+```
+
+
+
+### 6.3 Working with json in Terraform 
+The [**jsonencode function**](https://developer.hashicorp.com/terraform/language/functions/jsonencode) in Terraform provides a way to convert standard HCL types (like maps, lists, strings, numbers, and bools) into their JSON representation.
+
+`jsonencode`` can be used with AWS S3 bucket policies because these policies are written in JSON.
+
+Example:
+```tf
+policy = jsonencode(
+    {
+        "Version"= "2008-10-17",
+        "Id"= "PolicyForCloudFrontPrivateContent",
+        "Statement"= [
+            {
+                "Sid"= "AllowCloudFrontServicePrincipal",
+                "Effect"= "Allow",
+                "Principal"= {
+                    "Service"= "cloudfront.amazonaws.com"
+                },
+                "Action"= "s3:GetObject",
+                "Resource"= "arn:aws:s3:::${var.bucket_name}/*",
+                "Condition"= {
+                    "StringEquals"= {
+                      "AWS:SourceArn"= "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.terrahouse_distribution.id}"
+                    }
+                }
+            }
+        ]
+    }
+  )
+```
+
+### 6.4 Problem that you may encounter...!
+
+At this point, our code is up and running, and we've successfully deployed the CloudFront Distribution. It can access objects in the S3 bucket without requiring public access to be enabled.
+
+BUT, what is the problem here?
+
+The issue arises when we attempt to access the `cloudfront_distribution_domain_name` through a browser. Instead of displaying the content directly in the browser, it downloads the `index.html` file from our S3 bucket.
+
+The root cause lies in the fact that when we upload files like `index.html` or `error.html` in the [resource-storage.tf](/workspace/terraform-beginner-bootcamp-2023/modules/terrahous_aws/resource-storage.tf), S3 assigns a default content type of `application/octet` to these uploaded files. You can check it metadata of the uploaded files
+
+
+![Alt text](../public/assets/errors-images/error-due-to-content-type.png)
+
+
+What we would prefer is for the browser to recognize our HTML files as such. To achieve this, we need the browser to receive the correct MIME type (e.g., text/html, text/css, image/png) in the Content-Type header. The eay way to accomplish this is by specifying the correct content type when uploading these files.
+
+```tf
+resource "aws_s3_object" "error_html_object" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "error.html"
+  content_type = "text/html"  #<-- Add this
+  source = var.error_html_filepath
+  etag = filemd5(var.error_html_filepath)
+}
+```

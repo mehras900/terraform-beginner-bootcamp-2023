@@ -37,4 +37,3 @@ variable "error_html_filepath" {
     error_message = "The error.html file does not exist."
   }
 }
-
