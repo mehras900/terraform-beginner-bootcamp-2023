@@ -13,3 +13,7 @@ variable "index_object_path" {
 variable "error_object_path" {
   type        = string
 }
+
+variable "content_version" {
+type = number
+}

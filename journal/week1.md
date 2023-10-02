@@ -394,3 +394,58 @@ resource "aws_s3_object" "error_html_object" {
   etag = filemd5(var.error_html_filepath)
 }
 ```
+
+## 7. Terraform Data and Content Version
+
+### 7.1 Terraform Data 
+`terraform_data` is a new resource that gets introduced in v1.4 as a replacement for `null_resource`.
+
+Unlike `null_resource`, you don't need extra provider for `terraform_data`
+
+The purpose of `terraform_data` is similar to `null_resource`: 
+- It does not interact with any external systems. It's a generic resource that has no behaviors attached and is often used to react to changes in other resources. 
+
+- It can serve as a "hook" to trigger certain provisioners when other real resources change.
+
+**Example from our code:**
+```tf
+resource "terraform_data" "content_version" {
+  input = var.content_version
+}
+```
+
+### 7.2 Changing the lifecycle of resources
+In Terraform, the [**lifecycle meta-argument**](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#replace_triggered_by) provides controls that allow you to customize or override the default behavior of resource updates, creations, and deletions.
+
+Lifecycle Attributes:
+
+- **create_before_destroy**: Creates a new resource first, then destroys the old, minimizing downtime during updates.
+
+- **prevent_destroy**: Prohibits Terraform from destroying the specified resource, erroring if attempted.
+
+- **ignore_changes**: Ignores specified attribute changes, preventing them from triggering resource updates.
+
+**Example from our code:**
+```tf
+resource "aws_s3_object" "error_html_object" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "error.html"
+  content_type = "text/html"
+  source = var.error_html_filepath
+  etag = filemd5(var.error_html_filepath)
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output]
+    ignore_changes = [etag]
+  }
+}
+```
+
+Whenever the contents in the file changes, its corresponding etag also change. In this section, we need to only upload the files when the `content_version` is changed.
+
+In the above **lifecycle block**, we are ignoring any changes made to etag, which means `terraform plan` shouldn't output any changes in the plan when etag gets modified. 
+
+Above lifecycle block will only update the html files to S3 bucket when there is a change in the content_version. So, the approach should when you attempt to update the html files, you should also update the variable value.
+
+
+![Alt text](../public/assets/errors-images/tf_plan_output_when_content_version_change.png)
