@@ -34,7 +34,7 @@ Our root module structure is as follows:
  
 2. While running terraform plan, the other error you may encounter is as follows: 
 
-    ![Alt text](../public/assets/errors/tf_plan_err_because_of_something_wrong_with_tf_cloud_token.png)
+    ![Alt text](../public/assets/errors-images/tf_plan_err_because_of_something_wrong_with_tf_cloud_token.png)
 
 Above error mostly arises because of the incorrect/expired token or sometimes if the token is generated at the wrong place
 
@@ -109,7 +109,7 @@ terraform init
 But, you may run into below error:
 
 
-  ![Alt text](../public/assets/errors/init_error_while_migrating_state_from_tf_cloud_to_local.png)
+  ![Alt text](../public/assets/errors-images/init_error_while_migrating_state_from_tf_cloud_to_local.png)
 
   To fix this, delete `.terraform.lock.hcl` file and `.terraform` directory and run `terrform init` again.
 
@@ -225,3 +225,89 @@ Modules can be sourced from a variety of locations. Some common sources are:
 - GitHub
 - Terraform Registry
 - S3 buckets
+
+## 5. S3 Static Website Hosting
+You can use Amazon S3 to host a static website. On a static website, individual webpages include static content. 
+
+### 5.1 Path Variable and example
+In Terraform, the path module provides functions to interact with filesystem paths. This can be  useful when referencing files relative to your Terraform configuration or module.
+
+Functions provided by the path module include:
+
+- **path.cwd**: is the filesystem path of the original working directory from where you ran Terraform before applying any -chdir argument. 
+
+- **path.module** is the filesystem path of the module where the expression is placed. **NOT RECOMMENDED**
+
+- **path.root** is the filesystem path of the root module of the configuration.
+
+For more details about the terraform path variables, please checkout [Filesystem & Workspace info](https://developer.hashicorp.com/terraform/language/expressions/references#path-module) documentation.
+
+You can use the `terraform console` command to evaluate expressions and test out Terraform's built-in functions.
+
+```tf
+$ terrform console
+
+> path.module
+"."
+
+> path.root
+"."
+
+> path.cwd
+"/workspace/terraform-beginner-bootcamp-2023"
+```
+
+You can also use a combination of functions. For example, you can concatenate the result of the abspath function (which gives the absolute path of a given relative path) with path.root or path.module.
+
+```tf
+$ terrform console
+
+> abspath(path.module)
+"/workspace/terraform-beginner-bootcamp-2023"
+
+> abspath(path.root)
+"/workspace/terraform-beginner-bootcamp-2023"
+```
+
+### 5.2 Filexit and filemd5 function
+
+[**fileexists**](https://developer.hashicorp.com/terraform/language/functions/fileexists) determines whether a file exists at a given path.
+
+```tf
+fileexists(path)
+```
+
+Example from our code:
+```tf
+variable "error_html_filepath" {
+  description = "The path of the file to check."
+  type        = string
+
+  validation {
+    condition     = fileexists(var.error_html_filepath)
+    error_message = "The error.html file does not exist."
+  }
+}
+```
+
+Above is checking whether the varible `error_html_filepath` or `index_html_filepath` exists or not.
+
+[**filemd5**](https://developer.hashicorp.com/terraform/language/functions/filemd5) is a variant of md5 that hashes the contents of a given file rather than a literal string.
+
+### 5.3 Etag
+
+We are using etag to know when the file or value changes, basically we are using this in our code to know when the contents of files index.html or error.html changes, it will change the etag value corresponding to it and will try to upload the file again.
+
+**Doc**: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object#etag
+
+Example from our code:
+```tf
+resource "aws_s3_object" "error_html_object" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "error.html"
+  source = var.error_html_filepath
+  etag = filemd5(var.error_html_filepath)
+}
+```
+Other Terraform functions can be accessed at: https://developer.hashicorp.com/terraform/language/functions
+
