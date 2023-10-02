@@ -17,6 +17,8 @@ module "terrahous_aws" {
   source = "./modules/terrahous_aws"
   user_uuid = var.user_uuid
   bucket_name = var.bucket_name
+  index_html_filepath = var.index_object_path
+  error_html_filepath = var.error_object_path
 }
 
 
