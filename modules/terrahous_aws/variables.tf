@@ -37,3 +37,16 @@ variable "error_html_filepath" {
     error_message = "The error.html file does not exist."
   }
 }
+
+
+variable "content_version" {
+type = number
+description = "Content version mumber, should start from 1"
+validation {
+  error_message = "Content version is not of a type 'number'"
+  condition = var.content_version > 0 && floor(var.content_version) == var.content_version
+}
+
+}
+
+# floor returns the closest whole number that is less than or equal to the given value, which may be a fraction.
