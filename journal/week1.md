@@ -449,3 +449,78 @@ Above lifecycle block will only update the html files to S3 bucket when there is
 
 
 ![Alt text](../public/assets/errors-images/tf_plan_output_when_content_version_change.png)
+
+## 8. Invalidate Cache using provisioners
+
+When we trigger a **cache invalidation**, for certain files `.html` in CloudFront, we remove them from the CloudFront edge caches before their scheduled expiration. This process guarantees that CloudFront fetches the most up-to-date versions of the `.html` files from our origin.
+
+In this instance, we're once again utilizing the `terraform_data` resource, which functions as a trigger. It prompts the local provisioner to execute AWS CLI command to invalidate the cache whenever there's a modification in the content_version.
+
+```tf
+resource "terraform_data" "invalidating_cache" {
+  triggers_replace = [
+    terraform_data.content_version.output
+  ]
+
+  provisioner "local-exec" {
+    command = <<EOT
+aws cloudfront create-invalidation \
+--distribution-id ${aws_cloudfront_distribution.terrahouse_distribution.id} \
+--paths '/*'
+   EOT
+
+  }
+}
+```
+Refer [**heredoc-strings**](https://developer.hashicorp.com/terraform/language/expressions/strings#heredoc-strings) document to know more about strings & literal expressions in Terraform.
+
+### 8.1 Provisioners
+
+Provisioners are used as a to execute scripts or actions during specific lifecycle moments of a resource. They can help in tasks like bootstrapping, software installation, or configuration.
+
+As per terraform [**provisioners**](https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax) documentation, it should always be used as the Last Resort. All examples are provided in the provisioners doc
+
+Types of provisioners:
+
+- **local-exec**: This runs a command locally on the machine executing the Terraform code. It can be used to run a local script when a resource changes.
+
+  **Use case:** Running a cleanup script on your local machine when a resource is destroyed.
+
+  Example from our code:
+
+  ```tf
+    provisioner "local-exec" {
+      command = <<EOT
+      aws cloudfront create-invalidation \
+      --distribution-id ${aws_cloudfront_distribution.terrahouse_distribution.id} \
+      --paths '/*'
+   EOT
+
+  }
+  ```
+
+- **remote-exec**: This runs a command on a remote resource using SSH or WinRM. It's typically used to bootstrap a freshly-created VM.
+
+  **Use case:** Installing software or upldates on a new EC2 instance right after it's created.
+
+  Example:
+  ```tf
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/script.sh",
+      "/tmp/script.sh args",
+    ]
+  }
+  ```
+
+- **file Provisioner**: This is used for copying files or directories from the machine executing Terraform to the new resource or vice versa.
+
+  Example:
+  ```tf
+  # Copies the myapp.conf file to /etc/myapp.conf
+
+  provisioner "file" {
+    source      = "conf/myapp.conf"
+    destination = "/etc/myapp.conf"
+  }
+  ```
