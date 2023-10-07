@@ -50,3 +50,8 @@ validation {
 }
 
 # floor returns the closest whole number that is less than or equal to the given value, which may be a fraction.
+
+variable "assets_path" {
+  description = "This is the path to the assets folder"
+  type = string
+}

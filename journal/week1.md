@@ -524,3 +524,53 @@ Types of provisioners:
     destination = "/etc/myapp.conf"
   }
   ```
+## 9. Different types of expressions in terraform
+Expressions refer to or compute values within a configuration. The simplest expressions are just literal values, like "hello" or 5, but the Terraform language also allows more complex expressions such as references to data exported by resources, arithmetic, conditional evaluation, and a number of built-in functions.
+
+For more detailed info, please do check following docs:
+- https://developer.hashicorp.com/terraform/language/expressions 
+- https://spacelift.io/blog/terraform-functions-expressions-loops 
+
+### 9.1 For-each expression
+
+- [**for_each**](https://kodekloud.com/blog/terraform-for_each/) is commonly used to provision multiple similar infrastructure resources in Terraform. It prevents unintended remote object changes that come with using the count meta-argument.
+
+- The `for_each` meta-argument can be used in resource, data, or module blocks. 
+
+- The `for_each` and count meta-arguments cannot be used in the same block, as both are used to create multiple similar infrastructure objects in Terraform.
+
+**Example from our code:**
+```tf
+resource "aws_s3_object" "upload_assests" {
+  for_each = fileset("${var.assets_path}/fun-images", "*.{gif,jpg,png}")
+  bucket = aws_s3_bucket.website_bucket.id
+  key    = "assets/fun-images/${each.key}"
+  # content_type = "image/gif"
+  source = "${var.assets_path}/fun-images/${each.key}"
+  etag = filemd5("${var.assets_path}/fun-images/${each.key}")
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output]
+    ignore_changes = [etag]
+  }
+}
+```
+
+In the above block, fileset is getting the list of all the files with .gif,.jpg,.png extension under path `var.assets_path}/fun-images`, and then trying to upload it using `for-each`
+- `each.key` for a set is the values of a set. For a map, it is the map’s key, e.g. {map_key: “map_value” }
+
+- `each.value` for a set is the same as each.key. For a map, it is the associated value for the key.
+
+### 9.2 Fileset Function
+`fileset` enumerates a set of regular file names given a path and pattern
+
+For more details, please check [**fileset**](https://developer.hashicorp.com/terraform/language/functions/fileset) doc.
+
+```tf
+$ terraform console
+> fileset("${path.root}/public/assets/fun-images", "*.{jpg,png,gif}")
+
+Output:
+  toset([
+    "bearhi.gif", -->
+```

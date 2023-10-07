@@ -64,28 +64,42 @@ resource "aws_s3_object" "error_html_object" {
 }
 
 
-
 # Create bucket policy
-resource "aws_s3_bucket_policy" "cdn_access_bucket_policy" {
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy
+
+resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = aws_s3_bucket.website_bucket.bucket
+  #policy = data.aws_iam_policy_document.allow_access_from_another_account.json
   policy = jsonencode({
-   "Version":"2008-10-17",
-   "Id":"PolicyForCloudFrontPrivateContent",
-   "Statement":[
-      {
-         "Sid":"AllowCloudFrontServicePrincipal",
-         "Effect":"Allow",
-         "Principal":{
-            "Service":"cloudfront.amazonaws.com"
-         },
-         "Action":"s3:GetObject",
-         "Resource":"arn:aws:s3:::${var.bucket_name}/*",
-         "Condition":{
-            "StringEquals":{
-               "AWS:SourceArn":"arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.terrahouse_distribution.id}"
-            }
-         }
+    "Version" = "2012-10-17",
+    "Statement" = {
+      "Sid" = "AllowCloudFrontServicePrincipalReadOnly",
+      "Effect" = "Allow",
+      "Principal" = {
+        "Service" = "cloudfront.amazonaws.com"
+      },
+      "Action" = "s3:GetObject",
+      "Resource" = "arn:aws:s3:::${aws_s3_bucket.website_bucket.id}/*",
+      "Condition" = {
+      "StringEquals" = {
+          #"AWS:SourceArn": data.aws_caller_identity.current.arn
+          "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.terrahouse_distribution.id}"
+        }
       }
-   ]
-})
+    }
+  })
+}
+
+resource "aws_s3_object" "upload_assests" {
+  for_each = fileset("${var.assets_path}/fun-images", "*.{gif,jpg,png}")
+  bucket = aws_s3_bucket.website_bucket.id
+  key    = "assets/fun-images/${each.key}"
+  # content_type = "image/gif"
+  source = "${var.assets_path}/fun-images/${each.key}"
+  etag = filemd5("${var.assets_path}/fun-images/${each.key}")
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output]
+    ignore_changes = [etag]
+  }
 }
