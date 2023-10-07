@@ -17,3 +17,8 @@ variable "error_object_path" {
 variable "content_version" {
 type = number
 }
+
+variable "assets_path" {
+  description = "This is the path to the assets folder"
+  type = string
+}

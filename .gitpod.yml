@@ -11,6 +11,9 @@ tasks:
     before: |
       source ./bin/aws_cli_install.sh
       source ./bin/set_terraform_alias.sh
+  - name: http-server
+    before: |
+      npm install --global http-server    
 vscode:
   extensions:
     - amazonwebservices.aws-toolkit-vscode

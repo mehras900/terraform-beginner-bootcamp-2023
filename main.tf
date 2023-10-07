@@ -20,4 +20,5 @@ module "terrahous_aws" {
   index_html_filepath = var.index_object_path
   error_html_filepath = var.error_object_path
   content_version = var.content_version
+  assets_path = var.assets_path
 }

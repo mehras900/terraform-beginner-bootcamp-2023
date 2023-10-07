@@ -5,7 +5,7 @@ locals {
 
 # Create CDN DISTRIBUTION
 resource "aws_cloudfront_origin_access_control" "terrahouse_oac" {
-  name                              = "terrahouse_oac"
+  name                              = "OAC ${aws_s3_bucket.website_bucket.bucket}"
   description                       = "Origin Access Control for Terrahouse CloudFront Distribution for bucket: ${var.bucket_name} "
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -25,7 +25,7 @@ resource "aws_cloudfront_distribution" "terrahouse_distribution" {
   is_ipv6_enabled     = true
   comment             = "Terrahouse CloudFront Distribution for ${var.bucket_name}"
   default_root_object = "index.html"
-  http_version        = "http2"
+  # http_version        = "http2"
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
@@ -78,6 +78,5 @@ aws cloudfront create-invalidation \
 --distribution-id ${aws_cloudfront_distribution.terrahouse_distribution.id} \
 --paths '/*'
    EOT
-
   }
 }
