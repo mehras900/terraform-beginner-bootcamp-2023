@@ -9,6 +9,7 @@ tasks:
   - name: sinatra
     before: | 
       cd $PROJECT_ROOT
+      cd terratowns_mock_server
       bundle install
       bundle exec ruby server.rb     
   - name: aws-cli
