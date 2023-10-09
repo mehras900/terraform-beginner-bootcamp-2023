@@ -13,7 +13,7 @@
 #   value = module.terrahous_aws.cdn_distribution_domain_name
 # }
 
-# output "cdn_distribution_arn" {
-#   description = "This will output CloudFront Distribution domain name"
-#   value = module.terrahous_aws.cdn_distribution_arn
-# }
+# ## output "cdn_distribution_arn" {
+# ##   description = "This will output CloudFront Distribution domain name"
+# ##   value = module.terrahous_aws.cdn_distribution_arn
+# ## }

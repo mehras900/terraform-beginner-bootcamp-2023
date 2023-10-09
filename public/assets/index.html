@@ -1,12 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello Terraformers!!!</title>
+    <style>
+        /* Reset default padding and margin */
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        /* Set the image as a full-page background */
+        body {
+            background: url("/assets/GTA-vice-city.jpg") no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        /* Style for the title */
+        h1 {
+            color: black;
+            font-weight: bold;
+            text-align: center;
+            margin: 0 auto;
+            font-size: 1.5rem;
+            border: 2px solid black;
+            padding: 10px 20px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Styling for the fun facts */
+        .fun-fact {
+            margin-top: 20px;
+            padding: 10px 20px;
+            text-align: left;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .fun-fact h2 {
+            font-size: 1.5rem;
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        .fun-fact li {
+            list-style-type: disc;
+            font-size: 1.2rem;
+            color: black;
+            margin-bottom: 1rem;
+            opacity: 0; /* Set initial opacity to 0 */
+            animation: fadeIn 2s forwards; /* Apply the fadeIn effect */
+        }
+
+        .fun-fact li:nth-child(1) {
+            animation-delay: 0.5s;
+        }
+
+        .fun-fact li:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .fun-fact li:nth-child(3) {
+            animation-delay: 1.5s;
+        }
+
+        /* Keyframes for fade-in effect */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <h1>Hello Terraformers!!!</h1>
-    <img src="/assets/fun-images/bearhi.gif" />
+    <div class="fun-fact">
+        <h2>Did you know about the following about the UPCOMING GTA 6?</h2>
+        <ul>
+            <li>There are rumours that GTA 6 is expected to be the most expensive video game ever made. The cost of GTA 6 is rumoured to be between $1 billion and $2 billion.</li>
+            <li>Two alleged leaks went viral on Twitter on June 25, both claiming that GTA 6’s story will take place in Cuba, Colombia, and Miami.</li>
+            <li>On September 18, 2022, 90 videos showing off 53 minutes and 26 seconds worth of test footage were leaked in one of the biggest data breaches in history.</li>
+        </ul>
+    </div>
 </body>
+
 </html>
