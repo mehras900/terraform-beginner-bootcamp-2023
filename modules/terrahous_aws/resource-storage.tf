@@ -106,7 +106,7 @@ resource "aws_s3_object" "upload_assests" {
 }
 
 resource "aws_s3_object" "upload_assests_2" {
-  for_each = fileset("${var.assets_path}", "*.{gif,jpg,png}")
+  for_each = fileset("${var.assets_path}", "*.{gif,jpg,png,mp3}")
   bucket = aws_s3_bucket.website_bucket.id
   key    = "assets/${each.key}"
   # content_type = "image/gif"
