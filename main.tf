@@ -13,17 +13,16 @@
 #   # }
 # }
 
-  module "terrahous_aws" {
-    source = "./modules/terrahous_aws"
-    user_uuid = var.teacherseat_user_uuid
-    bucket_name = var.bucket_name
-    index_html_filepath = var.index_object_path
-    error_html_filepath = var.error_object_path
-    content_version = var.content_version
-    assets_path = var.assets_path
-  }
-
+ 
 terraform {
+     cloud {
+       organization = "tfbootcamp-2023"
+
+       workspaces {
+         name = "terrahouse-1"
+      }
+    }
+
     required_providers {
       terratowns = {
         source = "local.providers/local/terratowns"
@@ -38,8 +37,18 @@ provider "terratowns" {
   token = var.terratowns_access_token
 }
 
+ module "terrahous_aws" {
+    source = "./modules/terrahous_aws"
+    user_uuid = var.teacherseat_user_uuid
+    bucket_name = var.bucket_name
+    index_html_filepath = var.index_object_path
+    error_html_filepath = var.error_object_path
+    content_version = var.content_version
+    assets_path = var.assets_path
+  }
+
 resource "terratowns_home" "gta_home" {
-  name = "Excited for GTA 6 game announcement!!!"
+  name = "Some facts about the upcoming GTA 6!!!"
   description = <<DESCRIPTION
     Grand Theft Auto 6 saw what was easily one of the biggest leaks in gaming history.
     Roughly 90 videos were posted onto the official GTA Forums by a poster named teapotuberhacker.
